@@ -1,4 +1,4 @@
-name: Deploy Book app
+name: Deploy Book App
 
 on:
   push:
@@ -18,11 +18,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan 192.168.100.106 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 192.168.100.106 >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
-          ssh -i ~/.ssh/deploy_key daniel@192.168.100.106 << 'EOF'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no daniel@192.168.100.106 << 'EOF'
             cd /home/daniel/work/Hng/fastapi-book-project
             git pull origin main
             sudo systemctl restart fastapi
