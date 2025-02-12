@@ -1,0 +1,30 @@
+name: Deploy Book app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan 192.168.100.106 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          ssh -i ~/.ssh/deploy_key daniel@192.168.100.106 << 'EOF'
+            cd /home/daniel/work/Hng/fastapi-book-project
+            git pull origin main
+            sudo systemctl restart fastapi
+            sudo systemctl restart nginx
+          EOF
